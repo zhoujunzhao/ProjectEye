@@ -459,7 +459,8 @@ namespace ProjectEye.ViewModels
                         .Map<Core.Models.Statistic.StatisticModel>("Rest(minutes) 休息（分钟）", o => o.ResetTime)
                         .Map<Core.Models.Statistic.StatisticModel>("Skip 跳过（次）", o => o.SkipCount)
                         .Ignore<Core.Models.Statistic.StatisticModel>(o => o.ID)
-                        .Save(dlg.FileName, monthData, $"{Data.Year}{Data.Month}", overwrite: true);
+                        //.Save(dlg.FileName, monthData, $"{Data.Year}{Data.Month}", overwrite: true);
+                        .Save<Core.Models.Statistic.StatisticModel>(dlg.FileName, monthData, $"{Data.Year}{Data.Month}", true,true,true);
                 }
             }
             catch (Exception e)

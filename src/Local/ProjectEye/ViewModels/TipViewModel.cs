@@ -42,6 +42,9 @@ namespace ProjectEye.ViewModels
         private readonly PreAlertService preAlert;
         private readonly ThemeService theme;
 
+        private int busyTimeCountdown = MainService.BUSY_TIMEOUT;
+        private Project1UIButton restButton;
+
         public event ViewModelEventHandler ChangedEvent;
 
         public TipViewModel(RestService reset,
@@ -75,23 +78,49 @@ namespace ProjectEye.ViewModels
             theme.OnChangedTheme += Theme_OnChangedTheme;
             ChangedEvent += TipViewModel_ChangedEvent;
             main.OnHandleTimeout += Main_OnHandleTimeout;
+            this.busyTimeCountdown = MainService.BUSY_TIMEOUT;
             LoadConfig();
 
         }
 
         private void Main_OnHandleTimeout(object service, int msg)
         {
-            if (config.options.Behavior.IsHandleTimeoutRest)
+            if (msg == -1)
             {
-                //  进入休息状态
-                resetCommand_action(null);
+                this.busyTimeCountdown = MainService.BUSY_TIMEOUT;
+                setRestButtonContent(this.busyTimeCountdown);
+                if (config.options.Behavior.IsHandleTimeoutRest)
+                {
+                    //  进入休息状态
+                    resetCommand_action(null);
+                }
+                else
+                {
+                    //关闭窗口
+                    WindowManager.Hide("TipWindow");
+                    //进入离开状态
+                    main.OnLeave();
+                }
             }
             else
             {
-                //关闭窗口
-                WindowManager.Hide("TipWindow");
-                //进入离开状态
-                main.OnLeave();
+                this.busyTimeCountdown--;
+                setRestButtonContent(this.busyTimeCountdown);
+            }
+        }
+
+        private void setRestButtonContent(int timeLen)
+        {
+            if(restButton == null)
+            {
+                return;
+            }
+            string text = restButton.Content.ToString();
+            int idx = text.LastIndexOf("[");
+            if (idx >= 0)
+            {
+                text = text.Substring(0, idx);
+                restButton.Content = text + "[" + timeLen + "]";
             }
         }
 
@@ -292,6 +321,8 @@ namespace ProjectEye.ViewModels
             {
                 case "rest":
                     button.Command = resetCommand;
+                    button.Content += "[" + this.busyTimeCountdown + "]";
+                    restButton = button;
                     BindingOperations.SetBinding(button, Button.VisibilityProperty, binding);
                     break;
                 case "break":
@@ -438,6 +469,7 @@ namespace ProjectEye.ViewModels
             main.StopBusyListener();
             CountDownVisibility = System.Windows.Visibility.Visible;
             TakeButtonVisibility = System.Windows.Visibility.Hidden;
+            this.busyTimeCountdown = MainService.BUSY_TIMEOUT;
             reset.Start();
             if (config.options.General.Data)
             {
@@ -447,6 +479,7 @@ namespace ProjectEye.ViewModels
         private void busyCommand_action(object obj)
         {
             main.StopBusyListener();
+            this.busyTimeCountdown = MainService.BUSY_TIMEOUT;
             main.ReStart();
             WindowManager.Hide("TipWindow");
             if (config.options.General.Data)

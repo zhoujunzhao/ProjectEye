@@ -116,6 +116,8 @@ namespace ProjectEye.Core.Service
             SystemEvents.PowerModeChanged += new PowerModeChangedEventHandler(OnPowerModeChanged);
         }
 
+        public static int BUSY_TIMEOUT= 5;
+        private int busyTime = 0;
         #region 初始化
         public void Init()
         {
@@ -140,7 +142,8 @@ namespace ProjectEye.Core.Service
             //初始化繁忙计时器
             busy_timer = new DispatcherTimer();
             busy_timer.Tick += new EventHandler(busy_timer_Tick);
-            busy_timer.Interval = new TimeSpan(0, 0, 30);
+            busy_timer.Interval = new TimeSpan(0, 0, 1);
+
             //初始化用眼统计计时器
             useeye_timer = new DispatcherTimer();
             useeye_timer.Tick += new EventHandler(useeye_timer_Tick);
@@ -233,11 +236,20 @@ namespace ProjectEye.Core.Service
 
         private void busy_timer_Tick(object sender, EventArgs e)
         {
-            Debug.WriteLine("用户超过20秒未处理");
-            //用户超过20秒未处理
-            busy_timer.Stop();
+            this.busyTime++;
+            if (this.busyTime >= MainService.BUSY_TIMEOUT) 
+            {
+                this.busyTime = 0;
+                Debug.WriteLine("用户超过20秒未处理");
+                //用户超过20秒未处理
+                busy_timer.Stop();
 
-            OnHandleTimeout?.Invoke(this, 0);
+                OnHandleTimeout?.Invoke(this, -1);
+            }
+            else
+            {
+                OnHandleTimeout?.Invoke(this, this.busyTime);
+            }
            
         }
 
@@ -463,6 +475,7 @@ namespace ProjectEye.Core.Service
                 back_timer.Stop();
             }
             busy_timer.Stop();
+            this.busyTime = 0;
         }
         #endregion
 
