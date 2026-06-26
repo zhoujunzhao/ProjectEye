@@ -29,7 +29,7 @@ namespace ProjectEye.Core.Service
         private void timer_Tick(object sender, EventArgs e)
         {
             timer.Stop();
-            WindowManager.UpdateAllScreensWindow("TipWindow", true);
+            WindowManager.UpdateAllScreensWindow("TipWindow");
         }
 
         public void Init()

@@ -1,11 +1,13 @@
 ﻿using Project1.UI.Controls.Models;
 using Project1.UI.Cores;
+using ProjectEye.Core.Models.Options;
 using ProjectEye.Models.UI;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Windows.Media;
+using static ProjectEye.Core.WindowManager;
 
 namespace ProjectEye.Core.Service
 {
@@ -133,25 +135,51 @@ namespace ProjectEye.Core.Service
         /// <returns></returns>
         public UIDesignModel GetCreateDefaultTipWindowUI(
             string themeName,
-            string screenName)
+            string screenName,
+            Position position
+            )
         {
+            if(position == Position.Design)
+            {
+                position = Position.Full;
+            }
             screenName = screenName.Replace("\\", "");
 
-            var screen = System.Windows.Forms.Screen.PrimaryScreen;
-            if (screenName != string.Empty)
+            PositionModel positionModel = GetPositonInfo(position);
+            Size screenSize;
+            if (position == Position.Full)
             {
-                foreach (var item in System.Windows.Forms.Screen.AllScreens)
+                var screen = System.Windows.Forms.Screen.PrimaryScreen;
+                if (screenName != string.Empty)
                 {
-                    string itemScreenName = item.DeviceName.Replace("\\", "");
-                    if (itemScreenName == screenName)
+                    foreach (var item in System.Windows.Forms.Screen.AllScreens)
                     {
-                        screen = item;
-                        break;
+                        string itemScreenName = item.DeviceName.Replace("\\", "");
+                        if (itemScreenName == screenName)
+                        {
+                            screen = item;
+                            break;
+                        }
                     }
                 }
-            }
 
-            var screenSize = WindowManager.GetSize(screen);
+                screenSize = WindowManager.GetSize(screen);
+                //double imgWidth = 272;
+                //double imgHeight = 187;
+                //if (windowWidth > 0 && windowHeight > 0)
+                //{
+                //    screenSize.Width = windowWidth;
+                //    screenSize.Height = windowHeight;
+                //    imgWidth = windowWidth / 5;
+                //    imgHeight = windowHeight / 5;
+                //}
+            }
+            else
+            {
+                screenSize = new Size();
+                screenSize.Width = positionModel.WindowsSize.Width;
+                screenSize.Height = positionModel.WindowsSize.Height;
+            }
 
             //创建默认布局
             var data = new UIDesignModel();
@@ -162,63 +190,61 @@ namespace ProjectEye.Core.Service
             };
 
             var elements = new List<ElementModel>();
-            var tipimage = new ElementModel();
-            tipimage.Type = Project1.UI.Controls.Enums.DesignItemType.Image;
-            tipimage.Width = 272;
-            tipimage.Opacity = 1;
-            tipimage.Height = 187;
-            tipimage.Image = $"pack://application:,,,/ProjectEye;component/Resources/Themes/{themeName}/Images/tipImage.png";
-            tipimage.X = screenSize.Width / 2 - tipimage.Width / 2;
-            tipimage.Y = screenSize.Height * .24;
+            var tipImage = new ElementModel();
+            tipImage.Type = Project1.UI.Controls.Enums.DesignItemType.Image;
+            tipImage.Width = positionModel.TipImage.Size.Width;//imgWidth;
+            tipImage.Opacity = 1;
+            tipImage.Height = positionModel.TipImage.Size.Height;//imgHeight;
+            tipImage.Image = $"pack://application:,,,/ProjectEye;component/Resources/Themes/{themeName}/Images/tipImage.png";
+            tipImage.X = positionModel.TipImage.X;
+            tipImage.Y = positionModel.TipImage.Y;
 
             var tipText = new ElementModel();
             tipText.Type = Project1.UI.Controls.Enums.DesignItemType.Text;
             tipText.Text = "您已持续用眼{t}分钟，休息一会吧！请将注意力集中在至少6米远的地方20秒！";
             tipText.Opacity = 1;
             tipText.TextColor = Project1UIColor.Get("#45435b");
-            tipText.Width = 400;
-            tipText.Height = 50;
-            tipText.X = screenSize.Width / 2 - tipText.Width / 2;
-            tipText.Y = tipimage.Y + tipimage.Height + tipText.Height + 10;
-            tipText.FontSize = 20;
+            tipText.Width = positionModel.TipText.Size.Width;//400;
+            tipText.Height = positionModel.TipText.Size.Height; //50;
+            tipText.FontSize = positionModel.TipText.FontSize;
+            tipText.X = positionModel.TipText.X;
+            tipText.Y = positionModel.TipText.Y;
+            
 
             var restBtn = new ElementModel();
             restBtn.Type = Project1.UI.Controls.Enums.DesignItemType.Button;
-            restBtn.Width = 110;
-            restBtn.Height = 45;
-            restBtn.FontSize = 14;
+            restBtn.Width = positionModel.RestBtn.Size.Width;//110;
+            restBtn.Height = positionModel.RestBtn.Size.Height;//45;
+            restBtn.FontSize = positionModel.RestBtn.FontSize;//14;
             restBtn.Text = "好的";
             restBtn.Opacity = 1;
             restBtn.Command = "rest";
-
-            restBtn.X = screenSize.Width / 2 - (restBtn.Width * 2 + 10) / 2;
-            restBtn.Y = tipText.Y + tipText.Height + 20;
+            restBtn.X = positionModel.RestBtn.X;
+            restBtn.Y = positionModel.RestBtn.Y;
 
             var breakBtn = new ElementModel();
             breakBtn.Type = Project1.UI.Controls.Enums.DesignItemType.Button;
-            breakBtn.Width = 110;
-            breakBtn.Height = 45;
-            breakBtn.FontSize = 14;
+            breakBtn.Width = positionModel.BreakBtn.Size.Width;//110;
+            breakBtn.Height = positionModel.BreakBtn.Size.Height;//45;
+            breakBtn.FontSize = positionModel.BreakBtn.FontSize;//14;
             breakBtn.Text = "暂时不";
             breakBtn.Style = "basic";
             breakBtn.Command = "break";
             breakBtn.Opacity = 1;
-            breakBtn.X = screenSize.Width / 2 - (restBtn.Width * 2 + 10) / 2 + (restBtn.Width + 10);
-            breakBtn.Y = tipText.Y + tipText.Height + 20;
+            breakBtn.X = positionModel.BreakBtn.X;
+            breakBtn.Y = positionModel.BreakBtn.Y;
 
             var countDownText = new ElementModel();
             countDownText.Text = "{countdown}";
-            countDownText.FontSize = 50;
+            countDownText.FontSize = positionModel.CountDownText.FontSize;//50;
             countDownText.IsTextBold = true;
             countDownText.Type = Project1.UI.Controls.Enums.DesignItemType.Text;
             countDownText.TextColor = Brushes.Black;
             countDownText.Opacity = 1;
-            countDownText.Width = 100;
-            countDownText.Height = 60;
-            countDownText.X = screenSize.Width / 2 - countDownText.Width / 2;
-            countDownText.Y = restBtn.Y + restBtn.Height;
-
-
+            countDownText.Width = positionModel.CountDownText.Size.Width;//100;
+            countDownText.Height = positionModel.CountDownText.Size.Height;//60;
+            countDownText.X = positionModel.CountDownText.X;
+            countDownText.Y = positionModel.CountDownText.Y;
 
             if (themeName == "Dark")
             {
@@ -229,7 +255,7 @@ namespace ProjectEye.Core.Service
                 countDownText.TextColor = Project1UIColor.Get("#D9D9D9");
 
             }
-            elements.Add(tipimage);
+            elements.Add(tipImage);
             elements.Add(tipText);
             elements.Add(restBtn);
             elements.Add(breakBtn);

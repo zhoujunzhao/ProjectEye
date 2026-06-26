@@ -16,11 +16,17 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using WpfAnimatedGif;
+using static ProjectEye.Core.WindowManager;
 
 namespace ProjectEye.ViewModels
 {
     public class TipViewModel : TipModel, IViewModel
     {
+        /// <summary>
+        /// 位置
+        /// </summary>
+        private Position _position = Position.Full;
+
         public string ScreenName { get; set; }
         public Window WindowInstance { get; set; }
 
@@ -55,8 +61,12 @@ namespace ProjectEye.ViewModels
             App app,
             KeyboardShortcutsService keyboardShortcuts,
             PreAlertService preAlert,
-            ThemeService theme)
+            ThemeService theme,
+            Position position
+            )
         {
+            this._position = position;
+
             this.reset = reset;
             this.reset.TimeChanged += new RestEventHandler(timeChanged);
             this.reset.RestCompleted += new RestEventHandler(resetCompleted);
@@ -180,12 +190,17 @@ namespace ProjectEye.ViewModels
                 H = DateTime.Now.ToString("HH");
                 //分
                 MINUTES = DateTime.Now.ToString("mm");
-                //今日用眼时长
-                TWT = statistic.GetTodayData().WorkingTime.ToString();
-                //今日休息时长
-                TRT = statistic.GetTodayData().ResetTime.ToString();
-                //今日跳过次数
-                TSC = statistic.GetTodayData().SkipCount.ToString();
+                ProjectEye.Core.Models.Statistic.StatisticModel statisticData = statistic.GetTodayData();
+
+                if (statisticData != null)
+                {
+                    //今日用眼时长
+                    TWT = statistic.GetTodayData().WorkingTime.ToString();
+                    //今日休息时长
+                    TRT = statistic.GetTodayData().ResetTime.ToString();
+                    //今日跳过次数
+                    TSC = statistic.GetTodayData().SkipCount.ToString();
+                }
             }
             catch (Exception ex)
             {
@@ -199,7 +214,7 @@ namespace ProjectEye.ViewModels
             var data = JsonConvert.DeserializeObject<UIDesignModel>(FileHelper.Read(uiFilePath));
             if (data == null)
             {
-                data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName);
+                data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName,this._position);
 
                 FileHelper.Write(uiFilePath, JsonConvert.SerializeObject(data));
             }

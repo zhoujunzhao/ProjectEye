@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Windows;
 using System.Windows.Threading;
+using static ProjectEye.Core.WindowManager;
 
 namespace ProjectEye.Core.Service
 {
@@ -276,21 +277,24 @@ namespace ProjectEye.Core.Service
 
         private void date_timer_Tick(object sender, EventArgs e)
         {
-
-            date_timer.Stop();
-            if (!isDateTimerReset)
+            try
             {
-                //重置统计时间
-                statistic.StatisticUseEyeData();
-                //延迟2分钟后重置timer
-                isDateTimerReset = true;
-                date_timer.Interval = new TimeSpan(0, 2, 0);
-                date_timer.Start();
+                date_timer.Stop();
+                if (!isDateTimerReset)
+                {
+                    //重置统计时间
+                    statistic.StatisticUseEyeData();
+                    //延迟2分钟后重置timer
+                    isDateTimerReset = true;
+                    date_timer.Interval = new TimeSpan(0, 2, 0);
+                    date_timer.Start();
+                }
+                else
+                {
+                    UpdateDateTimer();
+                }
             }
-            else
-            {
-                UpdateDateTimer();
-            }
+            catch {  }
         }
 
         #region 获取下一次休息剩余分钟数
@@ -660,7 +664,7 @@ namespace ProjectEye.Core.Service
             //关闭
             WindowManager.Close("TipWindow");
             //在所有屏幕上创建全屏提示窗口
-            var tipWindow = WindowManager.GetCreateWindow("TipWindow", true);
+            var tipWindow = WindowManager.GetCreateWindow("TipWindow", Position.TopRight);
 
             foreach (var window in tipWindow)
             {

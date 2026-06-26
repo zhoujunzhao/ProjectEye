@@ -61,7 +61,7 @@ namespace ProjectEye.ViewModels
                         }
                         else
                         {
-                            data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName);
+                            data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName,WindowManager.Position.Design);
                             FileHelper.Write(UIConfigPath, JsonConvert.SerializeObject(data));
                         }
                         Container.SetContainerAttr(data.ContainerAttr);

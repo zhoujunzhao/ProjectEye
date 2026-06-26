@@ -1,11 +1,19 @@
-﻿using ProjectEye.Core.Models;
+﻿using NPOI.SS.Formula.Functions;
+using NPOI.Util;
+using Project1.UI.Controls;
+using ProjectEye.Core.Models;
+using ProjectEye.Core.Models.Options;
 using ProjectEye.Core.Service;
 using ProjectEye.ViewModels;
+using SixLabors.ImageSharp;
 using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
 using System.Windows;
+using System.Windows.Forms;
+using static ProjectEye.Core.WindowManager;
+using static System.Windows.Forms.VisualStyles.VisualStyleElement.Window;
 
 namespace ProjectEye.Core
 {
@@ -24,38 +32,196 @@ namespace ProjectEye.Core
 
         }
 
+        /// <summary>
+        /// 暂时保存当前窗口位置，方便传递调用
+        /// </summary>
+        private static Position currPosition;
+
+        #region 窗口位置设定
+        public enum Position
+        {
+            Full,// 全屏
+            TopLeft,
+            TopCenter,
+            TopRight,       
+            
+            MiddleCenter,
+
+            BottomLeft,
+            BottomCenter,
+            BottomRight,
+            Design,
+        }
+
+        public static PositionModel GetPositonInfo(Position position)
+        {
+            PositionModel model = new PositionModel();
+            WindowManager.Size screenSize = WindowManager.GetSize(Screen.PrimaryScreen);
+            System.Drawing.Size dialogSize = new System.Drawing.Size(306,230);
+            int dialogLeft = Convert.ToInt32(screenSize.Width / 2 - dialogSize.Width / 2);
+            int dialogTop = Convert.ToInt32(screenSize.Height / 2 - dialogSize.Height / 2);
+            int dialogRight = Convert.ToInt32(screenSize.Width - dialogSize.Width);
+            int dialogBottom = Convert.ToInt32(screenSize.Height - dialogSize.Height);
+
+
+            switch (position)
+            {
+                case Position.Full:
+                    model.WindowsSize = new System.Drawing.Size(Convert.ToInt32(screenSize.Width), Convert.ToInt32(screenSize.Height));
+                    model.Position = new System.Drawing.Point(0,0);
+                    break;
+                case Position.TopLeft:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(0, 0);
+                    break;
+                case Position.TopRight:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(dialogRight, 0);
+                    break;
+                case Position.BottomLeft:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(0, dialogBottom);
+                    break;
+                case Position.BottomRight:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(dialogRight, dialogBottom);
+                    break;
+                case Position.MiddleCenter:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(dialogLeft, dialogTop);
+                    break;
+                case Position.TopCenter:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(dialogLeft, 0);
+                    break;
+                case Position.BottomCenter:
+                    model.WindowsSize = dialogSize;
+                    model.Position = new System.Drawing.Point(dialogLeft, dialogBottom);
+                    break;
+            }
+
+            if(position == Position.Full)
+            {
+                #region 全屏控件设置
+                model.TipImage = new ControlBase();
+                model.TipImage.Size = new System.Drawing.Size(272, 187);
+                model.TipImage.X = screenSize.Width / 2 - model.TipImage.Size.Width / 2;
+                model.TipImage.Y = screenSize.Height * .24;
+
+                model.TipText = new ControlBase();
+                model.TipText.Size = new System.Drawing.Size(400, 50);
+                model.TipText.FontSize = 20;
+                model.TipText.X = screenSize.Width / 2 - model.TipText.Size.Width / 2;
+                model.TipText.Y = model.TipImage.Y + model.TipImage.Size.Height + model.TipText.Size.Height;
+
+                model.RestBtn = new ControlBase();
+                model.RestBtn.Size = new System.Drawing.Size(110, 45);
+                model.RestBtn.FontSize = 14;
+                model.RestBtn.X = screenSize.Width / 2 - (model.RestBtn.Size.Width * 2 + 10) / 2;
+                model.RestBtn.Y = model.TipText.Y + model.TipText.Size.Height + 20;
+
+                model.BreakBtn = model.RestBtn.Copy();
+                model.BreakBtn.X = screenSize.Width / 2 - (model.RestBtn.Size.Width * 2 + 10) / 2 + (model.RestBtn.Size.Width + 10);
+                model.BreakBtn.Y = model.RestBtn.Y;
+
+                model.CountDownText = new ControlBase();
+                model.CountDownText.Size = new System.Drawing.Size(100, 60);
+                model.CountDownText.FontSize = 50;
+                model.CountDownText.X = screenSize.Width / 2 - model.CountDownText.Size.Width / 2;
+                model.CountDownText.Y = model.RestBtn.Y;
+
+                #endregion 全屏控件设置
+            }
+            else
+            {
+                #region 控件设置
+                model.TipImage = new ControlBase();
+                model.TipImage.Size = new System.Drawing.Size(model.WindowsSize.Width/3, model.WindowsSize.Height / 3);
+                model.TipImage.X = dialogSize.Width / 2 - model.TipImage.Size.Width / 2;
+                model.TipImage.Y = 30;
+
+                model.TipText = new ControlBase();
+                int w = 300;
+                if(w> model.WindowsSize.Width)
+                {
+                    w = model.WindowsSize.Width;
+                }
+                model.TipText.Size = new System.Drawing.Size(w, 50);
+                model.TipText.FontSize = 14;
+                model.TipText.X = dialogSize.Width / 2 - model.TipText.Size.Width / 2;
+                model.TipText.Y = model.TipImage.Y + model.TipImage.Size.Height + 20;
+
+                model.RestBtn = new ControlBase();
+                model.RestBtn.Size = new System.Drawing.Size(70, 30);
+                model.RestBtn.FontSize = 14;
+                model.RestBtn.X = dialogSize.Width / 2 - (model.RestBtn.Size.Width * 2 + 15) / 2;
+                model.RestBtn.Y = model.TipText.Y + model.TipText.Size.Height + 10;
+
+                model.BreakBtn = model.RestBtn.Copy();
+                model.BreakBtn.X = model.RestBtn.X + (model.RestBtn.Size.Width + 15);
+                model.BreakBtn.Y = model.RestBtn.Y;
+
+                model.CountDownText = new ControlBase();
+                model.CountDownText.Size = new System.Drawing.Size(50, 30);
+                model.CountDownText.FontSize = 14;
+                model.CountDownText.X = dialogSize.Width / 2 - model.CountDownText.Size.Width / 2;
+                model.CountDownText.Y = model.RestBtn.Y;
+
+                #endregion 控件设置
+            }
+            return model;
+        }
+
+        #endregion 窗口位置设定
+
         //window
         #region 创建窗口
-        private static Window CreateWindow(string name, string screen, double left = -999999, double top = -999999, double width = -999999, double height = -999999, bool newViewModel = false)
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="name"></param>
+        /// <param name="screen"></param>
+        /// <param name="left"></param>
+        /// <param name="top"></param>
+        /// <param name="width"></param>
+        /// <param name="height"></param>
+        /// <param name="newViewModel"></param>
+        /// <returns></returns>
+        private static Window CreateWindow(string name, Position position, string screen, double left = -999999, double top = -999999, double width = -999999, double height = -999999, bool newViewModel = false)
         {
             //var selectWindow = GetWindowByScreen(name, screen);
             //if (selectWindow != null)
             //{
             //    return selectWindow;
             //}
-            var viewModel = GetCreateViewModel(name, newViewModel);
+            var viewModel = GetCreateViewModel(name, position, newViewModel, width, height);
 
             Type type = Type.GetType("ProjectEye.Views." + name);
             Window objWindow = (Window)type.Assembly.CreateInstance(type.FullName);
             objWindow.Uid = name;
             objWindow.DataContext = viewModel;
             objWindow.Closed += new EventHandler(window_closed);
-            if (left > -999999)
-            {
-                objWindow.Left = left;
-            }
-            if (top > -999999)
-            {
-                objWindow.Top = top;
-            }
-            if (width > -999999)
-            {
-                objWindow.Width = width;
-            }
-            if (height > -999999)
-            {
-                objWindow.Height = height;
-            }
+            PositionModel model = GetPositonInfo(position);
+            objWindow.Left = model.Position.X;
+            objWindow.Top = model.Position.Y;
+            objWindow.Width = model.WindowsSize.Width;
+            objWindow.Height = model.WindowsSize.Height;
+            //if (left > -999999)
+            //{
+            //    objWindow.Left = left;
+            //}
+            //if (top > -999999)
+            //{
+            //    objWindow.Top = top;
+            //}
+            //if (width > -999999)
+            //{
+            //    objWindow.Width = width;
+            //}
+            //if (height > -999999)
+            //{
+            //    objWindow.Height = height;
+            //}
 
             if (viewModel != null)
             {
@@ -84,7 +250,7 @@ namespace ProjectEye.Core
         /// <param name="name">窗口类名</param>
         /// <param name="screen">显示器</param>
         /// <returns></returns>
-        public static Window CreateWindowInScreen(string name, System.Windows.Forms.Screen screen = null, bool isMaximized = false, bool newViewModel = false)
+        public static Window CreateWindowInScreen(string name, Screen screen = null, Position position=Position.Full, bool newViewModel = false)
         {
 
             //var windowModel = GetWindowModel(name, screen.DeviceName);
@@ -99,18 +265,16 @@ namespace ProjectEye.Core
             double left = -999999, top = -999999, width = -999999, height = -999999;
             if (screen == null)
             {
-                screen = System.Windows.Forms.Screen.PrimaryScreen;
+                screen = Screen.PrimaryScreen;
             }
-            if (isMaximized)
-            {
-                var size = GetSize(screen);
-                left = ToDips(screen.Bounds.Left, size.XDPI);
-                top = ToDips(screen.Bounds.Top, size.YDPI);
+            var size = GetSize(screen);
+            left = ToDips(screen.Bounds.Left, size.XDPI);
+            top = ToDips(screen.Bounds.Top, size.YDPI);
 
-                width = size.Width;
-                height = size.Height;
-            }
+            width = size.Width;
+            height = size.Height;
             var window = CreateWindow(name,
+                position,
                 screen.DeviceName,
                 left,
                 top,
@@ -123,10 +287,13 @@ namespace ProjectEye.Core
         /// 在所有显示器中创建一个窗口
         /// </summary>
         /// <param name="name">窗口类名</param>
-        /// <param name="isMaximized">是否全屏</param>
         /// <returns></returns>
-        public static Window[] CreateWindow(string name, bool isMaximized, bool newViewModel = false)
+        public static Window[] CreateWindow(string name, Position position, bool newViewModel = false)
         {
+            if(position == Position.Design)
+            {
+                position = Position.Full;
+            }
             int screenCount = System.Windows.Forms.Screen.AllScreens.Length;
             var screens = System.Windows.Forms.Screen.AllScreens;
             Window[] windows = new Window[screenCount];
@@ -135,17 +302,12 @@ namespace ProjectEye.Core
             {
                 var screen = screens[index];
                 var size = GetSize(screen);
-                double width = -999999;
-                double height = -999999;
-                if (isMaximized)
-                {
-                    width = size.Width;
-                    height = size.Height;
-                }
+                double width = size.Width;
+                double height = size.Height;
                 double left = ToDips(screen.Bounds.Left, size.XDPI);
-                double top = ToDips(screen.Bounds.Top, size.YDPI);
+                double top = ToDips(screen.Bounds.Top, size.YDPI);        
 
-                var window = CreateWindow(name, screen.DeviceName, left, top, width, height, newViewModel);
+                var window = CreateWindow(name, position, screen.DeviceName, left, top, width, height, newViewModel);
                 windows[index] = window;
 
             }
@@ -173,12 +335,13 @@ namespace ProjectEye.Core
         /// </summary>
         /// <param name="name"></param>
         /// <returns>成功返回窗口实例数组</returns>
-        public static Window[] GetCreateWindow(string name, bool isMaximized, bool newViewModel = false)
+        public static Window[] GetCreateWindow(string name, Position position, bool newViewModel = false)
         {
+            currPosition = position;
             var window = GetWindows(name);
             if (window == null)
             {
-                window = CreateWindow(name, isMaximized, newViewModel);
+                window = CreateWindow(name, position, newViewModel);
             }
             return window;
         }
@@ -290,10 +453,10 @@ namespace ProjectEye.Core
         /// 在所有显示器中刷新一个窗口，如果在某个显示器中没有实例则会创建。跳过主显示器。
         /// </summary>
         /// <param name="name"></param>
-        public static void UpdateAllScreensWindow(string name, bool isMaximized)
+        public static void UpdateAllScreensWindow(string name)
         {
-            var screens = System.Windows.Forms.Screen.AllScreens;
-            var mainScreen = System.Windows.Forms.Screen.PrimaryScreen;
+            var screens = Screen.AllScreens;
+            var mainScreen = Screen.PrimaryScreen;
             foreach (var screen in screens)
             {
                 //跳过主显示器
@@ -309,7 +472,7 @@ namespace ProjectEye.Core
                     }
                     else
                     {
-                        CreateWindowInScreen(name, screen, isMaximized);
+                        CreateWindowInScreen(name, screen, currPosition);
                     }
                 }
             }
@@ -368,9 +531,10 @@ namespace ProjectEye.Core
 
         //viewmodel
         #region 创建viewmodel实例
-        private static object CreateViewModel(string windowName)
+        private static object CreateViewModel(string windowName, Position position)
         {
             string nameSpace = "ProjectEye.ViewModels";
+            // windowName=TipWindow
             string viewModelName = windowName.Replace("Window", "ViewModel");
             Type type = Type.GetType(nameSpace + "." + viewModelName);
             if (type == null)
@@ -389,7 +553,14 @@ namespace ProjectEye.Core
                 Type t = Type.GetType(typeFullName);
                 types[i] = t;
 
-                objs[i] = serviceCollection.GetInstance(typeFullName);
+                if (viewModelName == "TipViewModel" && constructorParameters[i].Name == "position")
+                {
+                    objs[i] = position;
+                }
+                else
+                {
+                    objs[i] = serviceCollection.GetInstance(typeFullName);
+                }
 
             }
             ConstructorInfo ctor = type.GetConstructor(types);
@@ -413,12 +584,12 @@ namespace ProjectEye.Core
         #endregion
 
         #region 获取viewmodel实例，不存在时创建
-        private static object GetCreateViewModel(string windowName, bool newViewmodel = false)
+        private static object GetCreateViewModel(string windowName, Position position, bool newViewmodel = false, double width = -999999, double height = -999999)
         {
             var viewModel = GetViewModel(windowName);
             if (viewModel == null || newViewmodel)
             {
-                return CreateViewModel(windowName);
+                return CreateViewModel(windowName, position);
             }
             return viewModel[0];
         }

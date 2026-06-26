@@ -111,6 +111,7 @@
     <Compile Include="Core\Models\Options\GeneralModel.cs" />
     <Compile Include="Core\Models\Options\OptionsModel.cs" />
     <Compile Include="Core\Models\Options\KeyboardShortcutModel.cs" />
+    <Compile Include="Core\Models\Options\PositionModel.cs" />
     <Compile Include="Core\Models\Options\StyleModel.cs" />
     <Compile Include="Core\Models\Options\ThemeModel.cs" />
     <Compile Include="Core\Models\EyesTest\EyesTestListModel.cs" />

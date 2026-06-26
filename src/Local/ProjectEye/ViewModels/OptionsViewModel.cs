@@ -5,6 +5,7 @@ using System;
 using System.Diagnostics;
 using System.Reflection;
 using System.Windows;
+using static ProjectEye.Core.WindowManager;
 
 namespace ProjectEye.ViewModels
 {
@@ -68,7 +69,7 @@ namespace ProjectEye.ViewModels
             string window = obj.ToString();
             if (window == "TipViewDesignWindow")
             {
-                WindowManager.CreateWindow(window, true, true);
+                WindowManager.CreateWindow(window, Position.Design, true);
             }
             else
             {
