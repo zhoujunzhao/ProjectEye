@@ -4,6 +4,7 @@ using System;
 using System.Diagnostics;
 using System.IO;
 using System.Reflection;
+using static Microsoft.IO.RecyclableMemoryStreamManager;
 
 namespace ProjectEye.Core.Service
 {
@@ -91,6 +92,7 @@ namespace ProjectEye.Core.Service
             options.General.LeaveListener = true;
             options.General.WarnTime = 20;
             options.General.IsTomatoMode = false;
+            options.General.WindowsPosition = Enums.Position.Full;
 
             options.Style = new StyleModel();
             options.Style.Theme = systemResources.Themes[0];

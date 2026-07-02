@@ -116,7 +116,7 @@ namespace ProjectEye.Core.Service
                     workCount = 0;
                     //重启计次
                     restartCount++;
-                    if (restartCount > 0)
+                    if (restartCount > 0 && tomatoDataToday != null)
                     {
                         //统计数据
                         tomatoDataToday.RestartCount++;

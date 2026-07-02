@@ -1,4 +1,5 @@
-﻿using System.Xml.Serialization;
+﻿using ProjectEye.Core.Enums;
+using System.Xml.Serialization;
 
 namespace ProjectEye.Core.Models.Options
 {
@@ -48,5 +49,10 @@ namespace ProjectEye.Core.Models.Options
         /// 是否是番茄时钟模式
         /// </summary>
         public bool IsTomatoMode { get; set; } = false;
+
+        /// <summary>
+        /// 窗口位置
+        /// </summary>
+        public Position WindowsPosition { get; set; } = Position.Full;
     }
 }

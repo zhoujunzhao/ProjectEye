@@ -3,6 +3,7 @@ using Project1.UI.Controls;
 using Project1.UI.Controls.Models;
 using Project1.UI.Cores;
 using ProjectEye.Core;
+using ProjectEye.Core.Enums;
 using ProjectEye.Core.Service;
 using ProjectEye.Models;
 using ProjectEye.Models.UI;
@@ -25,7 +26,7 @@ namespace ProjectEye.ViewModels
         /// <summary>
         /// 位置
         /// </summary>
-        private Position _position = Position.Full;
+        private Position _position;
 
         public string ScreenName { get; set; }
         public Window WindowInstance { get; set; }
@@ -211,11 +212,12 @@ namespace ProjectEye.ViewModels
         {
             var container = new Grid();
             string uiFilePath = $"UI\\{config.options.Style.Theme.ThemeName}_{ScreenName}.json";
+            FileHelper.Delete(uiFilePath);
             var data = JsonConvert.DeserializeObject<UIDesignModel>(FileHelper.Read(uiFilePath));
             if (data == null)
             {
                 data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName,this._position);
-
+                LogHelper.Warning("TipViewModel CreateUI Position:" + this._position.ToString());
                 FileHelper.Write(uiFilePath, JsonConvert.SerializeObject(data));
             }
             var containerBG = new Border();

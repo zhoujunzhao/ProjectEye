@@ -1,4 +1,5 @@
-﻿using ProjectEye.Core.Models.Options;
+﻿using ProjectEye.Core.Enums;
+using ProjectEye.Core.Models.Options;
 using System;
 using System.Drawing;
 using System.Windows;
@@ -202,7 +203,7 @@ namespace ProjectEye.Core.Service
         }
         private void menuItem_Statistic_Click(object sender, EventArgs e)
         {
-            WindowManager.CreateWindowInScreen("StatisticWindow");
+            WindowManager.CreateWindowInScreen("StatisticWindow", config.options.General.WindowsPosition);
             WindowManager.Show("StatisticWindow");
         }
 
@@ -235,7 +236,7 @@ namespace ProjectEye.Core.Service
 
         private void menuItem_Options_Click(object sender, EventArgs e)
         {
-            WindowManager.CreateWindowInScreen("OptionsWindow");
+            WindowManager.CreateWindowInScreen("OptionsWindow",Position.Setting);
             WindowManager.Show("OptionsWindow");
         }
 

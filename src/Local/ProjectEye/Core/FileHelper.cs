@@ -48,5 +48,21 @@ namespace ProjectEye.Core
             return File.Exists(path);
 
         }
+
+        /// <summary>
+        /// 删除运行目录中的文件
+        /// </summary>
+        /// <param name="path"></param>
+        /// <returns></returns>
+        public static bool Delete(string path)
+        {
+            path = AppDomain.CurrentDomain.BaseDirectory + path;
+            if (File.Exists(path))
+            {
+                File.Delete(path);
+                return true;
+            }
+            return false;
+        }
     }
 }

@@ -1,6 +1,7 @@
 ﻿using Newtonsoft.Json;
 using Project1.UI.Controls;
 using ProjectEye.Core;
+using ProjectEye.Core.Enums;
 using ProjectEye.Core.Service;
 using ProjectEye.Models;
 using ProjectEye.Models.UI;
@@ -61,7 +62,7 @@ namespace ProjectEye.ViewModels
                         }
                         else
                         {
-                            data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName,WindowManager.Position.Design);
+                            data = theme.GetCreateDefaultTipWindowUI(config.options.Style.Theme.ThemeName, ScreenName, config.options.General.WindowsPosition);
                             FileHelper.Write(UIConfigPath, JsonConvert.SerializeObject(data));
                         }
                         Container.SetContainerAttr(data.ContainerAttr);

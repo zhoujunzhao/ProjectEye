@@ -1,5 +1,6 @@
 ﻿using Project1.UI.Controls.Models;
 using Project1.UI.Cores;
+using ProjectEye.Core.Enums;
 using ProjectEye.Core.Models.Options;
 using ProjectEye.Models.UI;
 using System;
@@ -139,10 +140,6 @@ namespace ProjectEye.Core.Service
             Position position
             )
         {
-            if(position == Position.Design)
-            {
-                position = Position.Full;
-            }
             screenName = screenName.Replace("\\", "");
 
             PositionModel positionModel = GetPositonInfo(position);

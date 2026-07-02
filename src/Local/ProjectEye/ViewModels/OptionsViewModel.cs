@@ -1,8 +1,12 @@
 ﻿using ProjectEye.Core;
+using ProjectEye.Core.Enums;
+using ProjectEye.Core.Models.Options;
 using ProjectEye.Core.Service;
 using ProjectEye.Models;
 using System;
+using System.Collections.Generic;
 using System.Diagnostics;
+using System.Linq;
 using System.Reflection;
 using System.Windows;
 using static ProjectEye.Core.WindowManager;
@@ -11,7 +15,7 @@ namespace ProjectEye.ViewModels
 {
     public class OptionsViewModel
     {
-        public OptionsModel Model { get; set; }
+        public Models.OptionsModel Model { get; set; }
         public Command applyCommand { get; set; }
         public Command openurlCommand { get; set; }
         public Command inkCommand { get; set; }
@@ -21,6 +25,8 @@ namespace ProjectEye.ViewModels
         public Command addBreackProcessCommand { get; set; }
         public Command removeBreackProcessCommand { get; set; }
         public Command openWindowCommand { get; set; }
+
+        public Command radioButtonCommand { get; set; }
 
         private readonly ConfigService config;
         private readonly MainService mainService;
@@ -38,7 +44,7 @@ namespace ProjectEye.ViewModels
             this.systemResources = systemResources;
             this.sound = sound;
             this.theme = theme;
-            Model = new OptionsModel();
+            Model = new Models.OptionsModel();
             Model.Data = config.options;
             Model.Themes = systemResources.Themes;
             Model.Animations = systemResources.Animations;
@@ -58,6 +64,13 @@ namespace ProjectEye.ViewModels
             addBreackProcessCommand = new Command(new Action<object>(addBreackProcessCommand_action));
             removeBreackProcessCommand = new Command(new Action<object>(removeBreackProcessCommand_action));
             openWindowCommand = new Command(new Action<object>(openWindowCommand_action));
+
+            radioButtonCommand = new Command(new Action<object>(radioBottonCommand_action));
+
+            RadioButtons = systemResources.WindowsPositions;
+            RadioButtons.Where(p => p.Position == config.options.General.WindowsPosition).First().IsCheck = true;
+            
+            
         }
 
         /// <summary>
@@ -69,11 +82,11 @@ namespace ProjectEye.ViewModels
             string window = obj.ToString();
             if (window == "TipViewDesignWindow")
             {
-                WindowManager.CreateWindow(window, Position.Design, true);
+                WindowManager.CreateWindow(window, config.options.General.WindowsPosition, true);
             }
             else
             {
-                WindowManager.CreateWindowInScreen(window);
+                WindowManager.CreateWindowInScreen(window, config.options.General.WindowsPosition);
             }
             WindowManager.Show(window);
         }
@@ -111,14 +124,14 @@ namespace ProjectEye.ViewModels
         private void showWindowCommand_action(object obj)
         {
 
-            WindowManager.CreateWindowInScreen(obj.ToString());
+            WindowManager.CreateWindowInScreen(obj.ToString(), config.options.General.WindowsPosition);
 
             WindowManager.Show(obj.ToString());
         }
 
         private void updateCommand_action(object obj)
         {
-            WindowManager.CreateWindowInScreen("UpdateWindow");
+            WindowManager.CreateWindowInScreen("UpdateWindow",Position.Setting);
             WindowManager.Show("UpdateWindow");
 
             //            string savePath = Path.Combine(AppDomain.CurrentDomain.BaseDirectory,
@@ -203,5 +216,39 @@ namespace ProjectEye.ViewModels
             Model.ModalText = text;
             Model.ShowModal = true;
         }
+
+        #region 窗体位置相关
+
+        private List<RadioBottonModel> _radioButtons;
+        /// <summary>
+        /// 组合单选框列表
+        /// </summary>
+        public List<RadioBottonModel> RadioButtons
+        {
+            get { return _radioButtons; }
+            set
+            {
+                _radioButtons = value;
+            }
+        }
+
+        private void radioBottonCommand_action(object obj)
+        {
+            if(obj is Position)
+            {
+                Position position = (Position)obj;
+                foreach (var item in _radioButtons)
+                {
+                    item.IsCheck = item.Position == position;
+                }
+                if(config.options.General.WindowsPosition != position) 
+                {
+                    config.options.General.WindowsPosition = position;
+                    mainService.CreateTipWindows();
+                }
+            }
+        }
+
+        #endregion 窗体位置相关
     }
 }

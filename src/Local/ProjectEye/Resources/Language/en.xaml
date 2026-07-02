@@ -27,6 +27,16 @@
     <sys:String x:Key="Lang_x_n"></sys:String>
     <sys:String x:Key="Lang_number">{value}</sys:String>
 
+    <sys:String x:Key="Lang_PositionTip">Prompt window position</sys:String>
+    <sys:String x:Key="Lang_PositionFull">Full screen</sys:String>
+    <sys:String x:Key="Lang_PositionTopLeft">top-left</sys:String>
+    <sys:String x:Key="Lang_PositionTopCenter">top-center</sys:String>
+    <sys:String x:Key="Lang_PositionTopRight">top-right</sys:String>
+    <sys:String x:Key="Lang_PositionMiddleCenter">middle-center</sys:String>
+    <sys:String x:Key="Lang_PositionBottomLeft">bottom-left</sys:String>
+    <sys:String x:Key="Lang_PositionBottomCenter">bottom-center</sys:String>
+    <sys:String x:Key="Lang_PositionBottomRight">bottom-right</sys:String>
+
     <sys:String x:Key="Lang_TomatoTimer">Tomato Timer</sys:String>
     <sys:String x:Key="Lang_Work">Work</sys:String>
     <sys:String x:Key="Lang_Shortbreak">Short break</sys:String>

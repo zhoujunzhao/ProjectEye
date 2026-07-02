@@ -1,6 +1,7 @@
 ﻿using NPOI.SS.Formula.Functions;
 using NPOI.Util;
 using Project1.UI.Controls;
+using ProjectEye.Core.Enums;
 using ProjectEye.Core.Models;
 using ProjectEye.Core.Models.Options;
 using ProjectEye.Core.Service;
@@ -38,26 +39,12 @@ namespace ProjectEye.Core
         private static Position currPosition;
 
         #region 窗口位置设定
-        public enum Position
-        {
-            Full,// 全屏
-            TopLeft,
-            TopCenter,
-            TopRight,       
-            
-            MiddleCenter,
-
-            BottomLeft,
-            BottomCenter,
-            BottomRight,
-            Design,
-        }
-
+        
         public static PositionModel GetPositonInfo(Position position)
         {
             PositionModel model = new PositionModel();
             WindowManager.Size screenSize = WindowManager.GetSize(Screen.PrimaryScreen);
-            System.Drawing.Size dialogSize = new System.Drawing.Size(306,230);
+            System.Drawing.Size dialogSize = new System.Drawing.Size(306, 230);
             int dialogLeft = Convert.ToInt32(screenSize.Width / 2 - dialogSize.Width / 2);
             int dialogTop = Convert.ToInt32(screenSize.Height / 2 - dialogSize.Height / 2);
             int dialogRight = Convert.ToInt32(screenSize.Width - dialogSize.Width);
@@ -68,7 +55,11 @@ namespace ProjectEye.Core
             {
                 case Position.Full:
                     model.WindowsSize = new System.Drawing.Size(Convert.ToInt32(screenSize.Width), Convert.ToInt32(screenSize.Height));
-                    model.Position = new System.Drawing.Point(0,0);
+                    model.Position = new System.Drawing.Point(0, 0);
+                    break;
+                case Position.Setting:
+                    model.WindowsSize = new System.Drawing.Size(800, 600);
+                    model.Position = new System.Drawing.Point(Convert.ToInt32(screenSize.Width / 2 - model.WindowsSize.Width / 2), Convert.ToInt32(screenSize.Height / 2 - model.WindowsSize.Height / 2));
                     break;
                 case Position.TopLeft:
                     model.WindowsSize = dialogSize;
@@ -100,7 +91,7 @@ namespace ProjectEye.Core
                     break;
             }
 
-            if(position == Position.Full)
+            if (position == Position.Full)
             {
                 #region 全屏控件设置
                 model.TipImage = new ControlBase();
@@ -250,7 +241,7 @@ namespace ProjectEye.Core
         /// <param name="name">窗口类名</param>
         /// <param name="screen">显示器</param>
         /// <returns></returns>
-        public static Window CreateWindowInScreen(string name, Screen screen = null, Position position=Position.Full, bool newViewModel = false)
+        public static Window CreateWindowInScreen(string name, Position position, Screen screen = null, bool newViewModel = false)
         {
 
             //var windowModel = GetWindowModel(name, screen.DeviceName);
@@ -290,10 +281,6 @@ namespace ProjectEye.Core
         /// <returns></returns>
         public static Window[] CreateWindow(string name, Position position, bool newViewModel = false)
         {
-            if(position == Position.Design)
-            {
-                position = Position.Full;
-            }
             int screenCount = System.Windows.Forms.Screen.AllScreens.Length;
             var screens = System.Windows.Forms.Screen.AllScreens;
             Window[] windows = new Window[screenCount];
@@ -472,7 +459,7 @@ namespace ProjectEye.Core
                     }
                     else
                     {
-                        CreateWindowInScreen(name, screen, currPosition);
+                        CreateWindowInScreen(name,currPosition, screen);
                     }
                 }
             }
@@ -556,6 +543,7 @@ namespace ProjectEye.Core
                 if (viewModelName == "TipViewModel" && constructorParameters[i].Name == "position")
                 {
                     objs[i] = position;
+                    LogHelper.Warning("TipViewModel position参数注入成功：" + position.ToString());
                 }
                 else
                 {

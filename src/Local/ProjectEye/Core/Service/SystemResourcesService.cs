@@ -1,4 +1,6 @@
-﻿using ProjectEye.Core.Models.Options;
+﻿using ProjectEye.Core.Enums;
+using ProjectEye.Core.Models.Options;
+using System;
 using System.Collections.Generic;
 using System.Windows;
 
@@ -11,12 +13,15 @@ namespace ProjectEye.Core.Service
         public List<AnimationModel> Animations { get; set; }
         public List<ComboxModel> Languages { get; set; }
 
+        public List<RadioBottonModel> WindowsPositions { get; set; }
+
         public void Init()
         {
             Themes = new List<ThemeModel>();
             PreAlertActions = new List<ComboxModel>();
             Animations = new List<AnimationModel>();
             Languages = new List<ComboxModel>();
+            WindowsPositions = new List<RadioBottonModel>();
 
             Themes.Add(new ThemeModel()
             {
@@ -77,6 +82,23 @@ namespace ProjectEye.Core.Service
                 DisplayName = "English",
                 Value = "en"
             });
+            
+            foreach (Position item in Enum.GetValues(typeof(Position)))
+            {
+                string key = "Lang_Position" + item.ToString();
+                if (!Application.Current.Resources.Contains(key))
+                {
+                    continue;
+                }
+                WindowsPositions.Add(new RadioBottonModel
+                {
+                    Content = $"{Application.Current.Resources[key]}",
+                    IsCheck = false,
+                    Position = item
+                });
+
+            } 
+
         }
     }
 }

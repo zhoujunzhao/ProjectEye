@@ -27,6 +27,16 @@
     <sys:String x:Key="Lang_x_n">次</sys:String>
     <sys:String x:Key="Lang_number">{value} 个</sys:String>
 
+    <sys:String x:Key="Lang_PositionTip">提示窗口位置</sys:String>
+    <sys:String x:Key="Lang_PositionFull">全屏</sys:String>
+    <sys:String x:Key="Lang_PositionTopLeft">左上</sys:String>
+    <sys:String x:Key="Lang_PositionTopCenter">中上</sys:String>
+    <sys:String x:Key="Lang_PositionTopRight">右上</sys:String>
+    <sys:String x:Key="Lang_PositionMiddleCenter">居中</sys:String>
+    <sys:String x:Key="Lang_PositionBottomLeft">左下</sys:String>
+    <sys:String x:Key="Lang_PositionBottomCenter">中下</sys:String>
+    <sys:String x:Key="Lang_PositionBottomRight">右下</sys:String>
+
 
     <sys:String x:Key="Lang_TomatoTimer">番茄时钟</sys:String>
     <sys:String x:Key="Lang_Work">工作时长</sys:String>

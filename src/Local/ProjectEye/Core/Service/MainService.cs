@@ -664,7 +664,7 @@ namespace ProjectEye.Core.Service
             //关闭
             WindowManager.Close("TipWindow");
             //在所有屏幕上创建全屏提示窗口
-            var tipWindow = WindowManager.GetCreateWindow("TipWindow", Position.TopRight);
+            var tipWindow = WindowManager.GetCreateWindow("TipWindow", config.options.General.WindowsPosition);
 
             foreach (var window in tipWindow)
             {
